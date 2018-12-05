@@ -1,13 +1,9 @@
 package datawave.webservice.query.exception;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.ws.rs.core.Response;
-
-import org.apache.commons.lang.exception.ExceptionUtils;
-
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
  * Class to encapsulate Datawave Mapped exceptions
@@ -72,10 +68,10 @@ public class QueryException extends Exception {
         this.errorCode = code.getErrorCode();
     }
     
-    public QueryException(String message, Response.Status status) {
+    public QueryException(String message, int httpCode) {
         super(message);
         // We don't know how to map this so... just use the default stuff.
-        this.errorCode = Integer.toString(status.getStatusCode());
+        this.errorCode = Integer.toString(httpCode);
     }
     
     public QueryException(String message, Throwable cause, String errorCode) {
@@ -123,8 +119,7 @@ public class QueryException extends Exception {
      */
     public List<QueryException> getQueryExceptionsInStack() {
         List<Throwable> throwables = ExceptionUtils.getThrowableList(this);
-        Iterable<QueryException> queryExceptions = Iterables.filter(throwables, QueryException.class);
-        return Lists.newArrayList(queryExceptions);
+        return throwables.stream().filter(QueryException.class::isInstance).map(QueryException.class::cast).collect(Collectors.toList());
     }
     
     /**

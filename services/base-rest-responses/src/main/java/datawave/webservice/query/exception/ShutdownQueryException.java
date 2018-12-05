@@ -1,7 +1,5 @@
 package datawave.webservice.query.exception;
 
-import javax.ws.rs.core.Response;
-
 public class ShutdownQueryException extends QueryException {
     
     private static final long serialVersionUID = -8304923711360112605L;
@@ -38,8 +36,8 @@ public class ShutdownQueryException extends QueryException {
         super(code);
     }
     
-    public ShutdownQueryException(String message, Response.Status status) {
-        super(message, status);
+    public ShutdownQueryException(String message, int httpCode) {
+        super(message, httpCode);
     }
     
     public ShutdownQueryException(String message, Throwable cause, String errorCode) {

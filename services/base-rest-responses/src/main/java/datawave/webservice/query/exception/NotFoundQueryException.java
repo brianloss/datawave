@@ -1,7 +1,5 @@
 package datawave.webservice.query.exception;
 
-import javax.ws.rs.core.Response;
-
 public class NotFoundQueryException extends QueryException {
     
     private static final long serialVersionUID = -934464085734045755L;
@@ -38,8 +36,8 @@ public class NotFoundQueryException extends QueryException {
         super(code);
     }
     
-    public NotFoundQueryException(String message, Response.Status status) {
-        super(message, status);
+    public NotFoundQueryException(String message, int httpCode) {
+        super(message, httpCode);
     }
     
     public NotFoundQueryException(String message, Throwable cause, String errorCode) {

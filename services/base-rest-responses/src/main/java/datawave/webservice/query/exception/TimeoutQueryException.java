@@ -1,7 +1,5 @@
 package datawave.webservice.query.exception;
 
-import javax.ws.rs.core.Response;
-
 public class TimeoutQueryException extends QueryException {
     
     private static final long serialVersionUID = -7756640273640045775L;
@@ -38,8 +36,8 @@ public class TimeoutQueryException extends QueryException {
         super(code);
     }
     
-    public TimeoutQueryException(String message, Response.Status status) {
-        super(message, status);
+    public TimeoutQueryException(String message, int httpCode) {
+        super(message, httpCode);
     }
     
     public TimeoutQueryException(String message, Throwable cause, String errorCode) {

@@ -1,7 +1,5 @@
 package datawave.webservice.query.exception;
 
-import javax.ws.rs.core.Response;
-
 public class NoResultsQueryException extends QueryException {
     
     private static final long serialVersionUID = -45816465824091965L;
@@ -38,8 +36,8 @@ public class NoResultsQueryException extends QueryException {
         super(code);
     }
     
-    public NoResultsQueryException(String message, Response.Status status) {
-        super(message, status);
+    public NoResultsQueryException(String message, int httpCode) {
+        super(message, httpCode);
     }
     
     public NoResultsQueryException(String message, Throwable cause, String errorCode) {

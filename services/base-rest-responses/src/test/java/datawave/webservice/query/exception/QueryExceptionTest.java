@@ -2,21 +2,19 @@ package datawave.webservice.query.exception;
 
 import java.util.List;
 
-import javax.ws.rs.core.Response.Status;
-
-import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QueryExceptionTest {
     
-    protected static final Logger log = Logger.getLogger(QueryExceptionTest.class);
+    protected static final Logger log = LoggerFactory.getLogger(QueryExceptionTest.class);
     
     private final String message = "message";
     private final Throwable throwable = new Throwable("throws");
     private final String strErrCode = "404-1";
     private final DatawaveErrorCode code = DatawaveErrorCode.ACCUMULO_AUTHS_ERROR;
-    private final Status status = Status.ACCEPTED;
     
     private final String assertMsg = "Unable to retrieve Accumulo user authorizations. message";
     
@@ -33,9 +31,9 @@ public class QueryExceptionTest {
         
         Assert.assertEquals("500-1", qe.getErrorCode());
         Assert.assertEquals(500, qe.getStatusCode());
-        Assert.assertEquals(null, qe.getLocalizedMessage());
-        Assert.assertEquals(null, qe.getMessage());
-        Assert.assertEquals(null, qe.getCause());
+        Assert.assertNull(qe.getLocalizedMessage());
+        Assert.assertNull(qe.getMessage());
+        Assert.assertNull(qe.getCause());
         
         qe.setErrorCode("99999 of uptime.");
         Assert.assertEquals("99999 of uptime.", qe.getErrorCode());
@@ -54,7 +52,7 @@ public class QueryExceptionTest {
         Assert.assertEquals(500, qe.getStatusCode());
         Assert.assertEquals("message", qe.getLocalizedMessage());
         Assert.assertEquals("message", qe.getMessage());
-        Assert.assertEquals(null, qe.getCause());
+        Assert.assertNull(qe.getCause());
     }
     
     /**
@@ -175,7 +173,7 @@ public class QueryExceptionTest {
      */
     @Test
     public void testMessageResponseStatus() {
-        qe = new QueryException(message, status);
+        qe = new QueryException(message, 202);
         
         Assert.assertEquals("202", qe.getErrorCode());
         Assert.assertEquals(202, qe.getStatusCode());

@@ -1,7 +1,5 @@
 package datawave.webservice.query.exception;
 
-import javax.ws.rs.core.Response.Status;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,7 +11,6 @@ public class QueryCanceledQueryExceptionTest {
     private final Throwable throwable = new Throwable("throws");
     private final String strErrCode = "204-3";
     private final DatawaveErrorCode code = DatawaveErrorCode.QUERY_CANCELED;
-    private final Status status = Status.NO_CONTENT;
     
     private final String assertMsg = "Query was canceled. Bad query exception";
     private final String assertMsg2 = "Query was canceled.";
@@ -23,8 +20,8 @@ public class QueryCanceledQueryExceptionTest {
         qcqe = new QueryCanceledQueryException();
         Assert.assertEquals(500, qcqe.getStatusCode());
         Assert.assertEquals("500-1", qcqe.getErrorCode());
-        Assert.assertEquals(null, qcqe.getMessage());
-        Assert.assertEquals(null, qcqe.getLocalizedMessage());
+        Assert.assertNull(qcqe.getMessage());
+        Assert.assertNull(qcqe.getLocalizedMessage());
     }
     
     @Test
@@ -92,7 +89,7 @@ public class QueryCanceledQueryExceptionTest {
     
     @Test
     public void testMessageResponseStatus() {
-        qcqe = new QueryCanceledQueryException(message, status);
+        qcqe = new QueryCanceledQueryException(message, 204);
         Assert.assertEquals(204, qcqe.getStatusCode());
         Assert.assertEquals("204", qcqe.getErrorCode());
         Assert.assertEquals(message, qcqe.getMessage());

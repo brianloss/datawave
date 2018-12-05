@@ -1,7 +1,5 @@
 package datawave.webservice.query.exception;
 
-import javax.ws.rs.core.Response;
-
 public class BadRequestQueryException extends QueryException {
     
     private static final long serialVersionUID = -65346401073845783L;
@@ -38,8 +36,8 @@ public class BadRequestQueryException extends QueryException {
         super(code);
     }
     
-    public BadRequestQueryException(String message, Response.Status status) {
-        super(message, status);
+    public BadRequestQueryException(String message, int httpCode) {
+        super(message, httpCode);
     }
     
     public BadRequestQueryException(String message, Throwable cause, String errorCode) {

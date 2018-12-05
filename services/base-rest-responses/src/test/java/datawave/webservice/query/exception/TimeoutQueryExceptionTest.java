@@ -1,7 +1,5 @@
 package datawave.webservice.query.exception;
 
-import javax.ws.rs.core.Response.Status;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,7 +11,6 @@ public class TimeoutQueryExceptionTest {
     private final Throwable throwable = new Throwable("throws");
     private final String strErrCode = "500-26";
     private final DatawaveErrorCode code = DatawaveErrorCode.QUERY_TIMEOUT;
-    private final Status status = Status.INTERNAL_SERVER_ERROR;
     
     private final String assertMsg = "Query timed out. Bad query exception";
     private final String assertMsg2 = "Query timed out.";
@@ -23,8 +20,8 @@ public class TimeoutQueryExceptionTest {
         tqe = new TimeoutQueryException();
         Assert.assertEquals(500, tqe.getStatusCode());
         Assert.assertEquals("500-1", tqe.getErrorCode());
-        Assert.assertEquals(null, tqe.getMessage());
-        Assert.assertEquals(null, tqe.getLocalizedMessage());
+        Assert.assertNull(tqe.getMessage());
+        Assert.assertNull(tqe.getLocalizedMessage());
     }
     
     @Test
@@ -92,7 +89,7 @@ public class TimeoutQueryExceptionTest {
     
     @Test
     public void testMessageResponseStatus() {
-        tqe = new TimeoutQueryException(message, status);
+        tqe = new TimeoutQueryException(message, 500);
         Assert.assertEquals(500, tqe.getStatusCode());
         Assert.assertEquals("500", tqe.getErrorCode());
         Assert.assertEquals(message, tqe.getMessage());

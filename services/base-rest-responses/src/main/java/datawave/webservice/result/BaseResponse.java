@@ -68,7 +68,7 @@ public abstract class BaseResponse implements Serializable {
     
     public void addMessage(String message) {
         if (this.messages == null) {
-            this.messages = new ArrayList<String>();
+            this.messages = new ArrayList<>();
         }
         this.messages.add(message);
     }
@@ -87,7 +87,7 @@ public abstract class BaseResponse implements Serializable {
         if (null == e)
             return;
         if (this.exceptions == null) {
-            this.exceptions = new LinkedList<QueryExceptionType>();
+            this.exceptions = new LinkedList<>();
         }
         
         QueryExceptionType qet = new QueryExceptionType();
@@ -96,14 +96,14 @@ public abstract class BaseResponse implements Serializable {
         
         if (null != e.getErrorCode())
             qet.setCode(e.getErrorCode());
-        
+            
         // Send the cause's message if present, or the cause itself since that
         // will contain the Exception's name
         if (null != e.getCause() && null != e.getCause().getMessage())
             qet.setCause(e.getCause().getMessage());
         else if (null != e.getCause())
             qet.setCause(e.getCause().toString());
-        
+            
         // Need to ensure that make the cause and exception of the QueryExceptionType be
         // non-null or else they won't be serialized into the returned Response
         if (qet.getCause() == null) {

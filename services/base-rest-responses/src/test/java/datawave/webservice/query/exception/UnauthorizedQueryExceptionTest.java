@@ -1,7 +1,5 @@
 package datawave.webservice.query.exception;
 
-import javax.ws.rs.core.Response.Status;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,7 +11,6 @@ public class UnauthorizedQueryExceptionTest {
     private final Throwable throwable = new Throwable("throws");
     private final String strErrCode = "401-1";
     private final DatawaveErrorCode code = DatawaveErrorCode.QUERY_OWNER_MISMATCH;
-    private final Status status = Status.UNAUTHORIZED;
     
     private final String assertMsg = "Current user does not match user that defined query. Bad query exception";
     private final String assertMsg2 = "Current user does not match user that defined query.";
@@ -23,8 +20,8 @@ public class UnauthorizedQueryExceptionTest {
         tqe = new UnauthorizedQueryException();
         Assert.assertEquals(500, tqe.getStatusCode());
         Assert.assertEquals("500-1", tqe.getErrorCode());
-        Assert.assertEquals(null, tqe.getMessage());
-        Assert.assertEquals(null, tqe.getLocalizedMessage());
+        Assert.assertNull(tqe.getMessage());
+        Assert.assertNull(tqe.getLocalizedMessage());
     }
     
     @Test
@@ -92,7 +89,7 @@ public class UnauthorizedQueryExceptionTest {
     
     @Test
     public void testMessageResponseStatus() {
-        tqe = new UnauthorizedQueryException(message, status);
+        tqe = new UnauthorizedQueryException(message, 401);
         Assert.assertEquals(401, tqe.getStatusCode());
         Assert.assertEquals("401", tqe.getErrorCode());
         Assert.assertEquals(message, tqe.getMessage());

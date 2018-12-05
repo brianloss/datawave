@@ -1,7 +1,5 @@
 package datawave.webservice.query.exception;
 
-import javax.ws.rs.core.Response.Status;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,7 +11,6 @@ public class NotFoundQueryExceptionTest {
     private final Throwable throwable = new Throwable("throws");
     private final String strErrCode = "204-5";
     private final DatawaveErrorCode code = DatawaveErrorCode.QUERY_OR_VIEW_NOT_FOUND;
-    private final Status status = Status.NOT_FOUND;
     
     private final String assertMsg = "Query/view not found. Bad query exception";
     private final String assertMsg2 = "Query/view not found.";
@@ -23,8 +20,8 @@ public class NotFoundQueryExceptionTest {
         nfqe = new NotFoundQueryException();
         Assert.assertEquals(500, nfqe.getStatusCode());
         Assert.assertEquals("500-1", nfqe.getErrorCode());
-        Assert.assertEquals(null, nfqe.getMessage());
-        Assert.assertEquals(null, nfqe.getLocalizedMessage());
+        Assert.assertNull(nfqe.getMessage());
+        Assert.assertNull(nfqe.getLocalizedMessage());
     }
     
     @Test
@@ -92,7 +89,7 @@ public class NotFoundQueryExceptionTest {
     
     @Test
     public void testMessageResponseStatus() {
-        nfqe = new NotFoundQueryException(message, status);
+        nfqe = new NotFoundQueryException(message, 404);
         Assert.assertEquals(404, nfqe.getStatusCode());
         Assert.assertEquals("404", nfqe.getErrorCode());
         Assert.assertEquals(message, nfqe.getMessage());

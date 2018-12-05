@@ -1,7 +1,5 @@
 package datawave.webservice.query.exception;
 
-import javax.ws.rs.core.Response.Status;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,7 +11,6 @@ public class PreConditionFailedQueryExceptionTest {
     private final Throwable throwable = new Throwable("throws");
     private final String strErrCode = "412-10";
     private final DatawaveErrorCode code = DatawaveErrorCode.QUERY_TERM_THRESHOLD_EXCEEDED;
-    private final Status status = Status.PRECONDITION_FAILED;
     
     private final String assertMsg = "Query failed because it exceeded the query term threshold. Bad query exception";
     private final String assertMsg2 = "Query failed because it exceeded the query term threshold.";
@@ -23,8 +20,8 @@ public class PreConditionFailedQueryExceptionTest {
         brqe = new PreConditionFailedQueryException();
         Assert.assertEquals(500, brqe.getStatusCode());
         Assert.assertEquals("500-1", brqe.getErrorCode());
-        Assert.assertEquals(null, brqe.getMessage());
-        Assert.assertEquals(null, brqe.getLocalizedMessage());
+        Assert.assertNull(brqe.getMessage());
+        Assert.assertNull(brqe.getLocalizedMessage());
     }
     
     @Test
@@ -92,7 +89,7 @@ public class PreConditionFailedQueryExceptionTest {
     
     @Test
     public void testMessageResponseStatus() {
-        brqe = new PreConditionFailedQueryException(message, status);
+        brqe = new PreConditionFailedQueryException(message, 412);
         Assert.assertEquals(412, brqe.getStatusCode());
         Assert.assertEquals("412", brqe.getErrorCode());
         Assert.assertEquals(message, brqe.getMessage());

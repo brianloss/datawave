@@ -1,7 +1,5 @@
 package datawave.webservice.query.exception;
 
-import javax.ws.rs.core.Response;
-
 public class UnauthorizedQueryException extends QueryException {
     
     private static final long serialVersionUID = -656664017234074155L;
@@ -38,8 +36,8 @@ public class UnauthorizedQueryException extends QueryException {
         super(code);
     }
     
-    public UnauthorizedQueryException(String message, Response.Status status) {
-        super(message, status);
+    public UnauthorizedQueryException(String message, int httpCode) {
+        super(message, httpCode);
     }
     
     public UnauthorizedQueryException(String message, Throwable cause, String errorCode) {

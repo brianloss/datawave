@@ -1,7 +1,5 @@
 package datawave.webservice.query.exception;
 
-import javax.ws.rs.core.Response;
-
 public class QueryCanceledQueryException extends QueryException {
     
     private static final long serialVersionUID = -45193868381091635L;
@@ -38,8 +36,8 @@ public class QueryCanceledQueryException extends QueryException {
         super(code);
     }
     
-    public QueryCanceledQueryException(String message, Response.Status status) {
-        super(message, status);
+    public QueryCanceledQueryException(String message, int httpCode) {
+        super(message, httpCode);
     }
     
     public QueryCanceledQueryException(String message, Throwable cause, String errorCode) {

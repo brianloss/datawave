@@ -1,7 +1,5 @@
 package datawave.webservice.query.exception;
 
-import javax.ws.rs.core.Response.Status;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,7 +11,6 @@ public class NoResultsQueryExceptionTest {
     private final Throwable throwable = new Throwable("throws");
     private final String strErrCode = "404-1";
     private final DatawaveErrorCode code = DatawaveErrorCode.QUERY_NAME_REQUIRED;
-    private final Status status = Status.BAD_REQUEST;
     
     private final String assertMsg = "Param queryName is required. Bad query exception";
     private final String assertMsg2 = "Param queryName is required.";
@@ -23,8 +20,8 @@ public class NoResultsQueryExceptionTest {
         nrqe = new NoResultsQueryException();
         Assert.assertEquals(500, nrqe.getStatusCode());
         Assert.assertEquals("500-1", nrqe.getErrorCode());
-        Assert.assertEquals(null, nrqe.getMessage());
-        Assert.assertEquals(null, nrqe.getLocalizedMessage());
+        Assert.assertNull(nrqe.getMessage());
+        Assert.assertNull(nrqe.getLocalizedMessage());
     }
     
     @Test
@@ -92,7 +89,7 @@ public class NoResultsQueryExceptionTest {
     
     @Test
     public void testMessageResponseStatus() {
-        nrqe = new NoResultsQueryException(message, status);
+        nrqe = new NoResultsQueryException(message, 400);
         Assert.assertEquals(400, nrqe.getStatusCode());
         Assert.assertEquals("400", nrqe.getErrorCode());
         Assert.assertEquals(message, nrqe.getMessage());

@@ -1,7 +1,5 @@
 package datawave.webservice.query.exception;
 
-import javax.ws.rs.core.Response.Status;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,7 +11,6 @@ public class ShutdownQueryExceptionTest {
     private final Throwable throwable = new Throwable("throws");
     private final String strErrCode = "500-26";
     private final DatawaveErrorCode code = DatawaveErrorCode.SERVER_SHUTDOWN;
-    private final Status status = Status.INTERNAL_SERVER_ERROR;
     
     private final String assertMsg = "Server being shut down. Bad query exception";
     private final String assertMsg2 = "Server being shut down.";
@@ -23,8 +20,8 @@ public class ShutdownQueryExceptionTest {
         sqe = new ShutdownQueryException();
         Assert.assertEquals(500, sqe.getStatusCode());
         Assert.assertEquals("500-1", sqe.getErrorCode());
-        Assert.assertEquals(null, sqe.getMessage());
-        Assert.assertEquals(null, sqe.getLocalizedMessage());
+        Assert.assertNull(sqe.getMessage());
+        Assert.assertNull(sqe.getLocalizedMessage());
     }
     
     @Test
@@ -92,7 +89,7 @@ public class ShutdownQueryExceptionTest {
     
     @Test
     public void testMessageResponseStatus() {
-        sqe = new ShutdownQueryException(message, status);
+        sqe = new ShutdownQueryException(message, 500);
         Assert.assertEquals(500, sqe.getStatusCode());
         Assert.assertEquals("500", sqe.getErrorCode());
         Assert.assertEquals(message, sqe.getMessage());

@@ -1,7 +1,5 @@
 package datawave.webservice.query.exception;
 
-import javax.ws.rs.core.Response;
-
 public class PreConditionFailedQueryException extends QueryException {
     
     private static final long serialVersionUID = -682794401380142802L;
@@ -38,8 +36,8 @@ public class PreConditionFailedQueryException extends QueryException {
         super(code);
     }
     
-    public PreConditionFailedQueryException(String message, Response.Status status) {
-        super(message, status);
+    public PreConditionFailedQueryException(String message, int httpCode) {
+        super(message, httpCode);
     }
     
     public PreConditionFailedQueryException(String message, Throwable cause, String errorCode) {
