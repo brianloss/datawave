@@ -1,0 +1,3 @@
+* Get XmlSchema items ported over to new api packages
+* Test HTML and protostuff response types
+* Support rest-easy style api extensions?

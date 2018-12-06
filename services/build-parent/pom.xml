@@ -34,5 +34,6 @@
         <module>../authorization-service</module>
         <module>../audit-service</module>
         <module>../base-rest-responses</module>
+        <module>../data-dictionary-api</module>
     </modules>
 </project>
