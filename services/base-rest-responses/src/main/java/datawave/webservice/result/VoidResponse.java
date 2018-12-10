@@ -70,6 +70,8 @@ public class VoidResponse extends BaseResponse implements Message<VoidResponse> 
                         output.writeObject(3, exception, QueryExceptionType.getSchema(), true);
                 }
             }
+            
+            output.writeBool(4, message.getHasResults(), false);
         }
         
         public void mergeFrom(Input input, VoidResponse message) throws IOException {
@@ -88,6 +90,9 @@ public class VoidResponse extends BaseResponse implements Message<VoidResponse> 
                             exceptions = new LinkedList<>();
                         exceptions.add(input.mergeObject(null, QueryExceptionType.getSchema()));
                         break;
+                    case 4:
+                        message.setHasResults(input.readBool());
+                        break;
                     default:
                         input.handleUnknownField(number, this);
                         break;
@@ -105,6 +110,8 @@ public class VoidResponse extends BaseResponse implements Message<VoidResponse> 
                     return "messages";
                 case 3:
                     return "exceptions";
+                case 4:
+                    return "hasResults";
                 default:
                     return null;
             }
@@ -120,6 +127,7 @@ public class VoidResponse extends BaseResponse implements Message<VoidResponse> 
             fieldMap.put("operationTimeMs", 1);
             fieldMap.put("messages", 2);
             fieldMap.put("exceptions", 3);
+            fieldMap.put("hasResults", 4);
         }
     };
 }

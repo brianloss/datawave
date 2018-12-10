@@ -86,53 +86,43 @@ public abstract class BaseResponse implements Serializable {
     public void addException(QueryException e) {
         if (null == e)
             return;
-        if (this.exceptions == null) {
-            this.exceptions = new LinkedList<>();
-        }
-        
-        QueryExceptionType qet = new QueryExceptionType();
-        if (null != e.getMessage())
-            qet.setMessage(e.getMessage());
-        
-        if (null != e.getErrorCode())
-            qet.setCode(e.getErrorCode());
-            
-        // Send the cause's message if present, or the cause itself since that
-        // will contain the Exception's name
-        if (null != e.getCause() && null != e.getCause().getMessage())
-            qet.setCause(e.getCause().getMessage());
-        else if (null != e.getCause())
-            qet.setCause(e.getCause().toString());
-            
-        // Need to ensure that make the cause and exception of the QueryExceptionType be
-        // non-null or else they won't be serialized into the returned Response
-        if (qet.getCause() == null) {
-            qet.setCause("Exception with no cause caught");
-        }
-        if (qet.getMessage() == null) {
-            qet.setMessage("Exception with no message or cause message caught");
-        }
-        
-        this.exceptions.push(qet);
+        addException(e, e.getErrorCode());
     }
     
     public void addException(Exception e) {
         if (e instanceof QueryException) {
             addException((QueryException) e);
-        } else {
-            QueryExceptionType qet = new QueryExceptionType();
-            if (e.getMessage() != null) {
-                qet.setMessage(e.getMessage());
-            } else if (e.getCause() != null && e.getCause().getMessage() != null) {
-                qet.setMessage(e.getCause().getMessage());
-            } else {
-                qet.setMessage("Exception with no message or cause message caught");
-            }
-            if (e.getCause() != null) {
-                qet.setCause(e.getCause().toString());
-            } else {
-                qet.setCause("Exception with no cause caught");
-            }
+        } else if (null != e) {
+            addException(e, null);
         }
+    }
+    
+    protected void addException(Exception e, String errorCode) {
+        QueryExceptionType qet = new QueryExceptionType();
+        
+        // Prefer the cause's message if present, but in any case ensure that at least some message is filled in.
+        if (null != e.getCause() && null != e.getCause().getMessage()) {
+            qet.setMessage(e.getCause().getMessage());
+        } else if (null != e.getMessage()) {
+            qet.setMessage(e.getMessage());
+        } else {
+            qet.setMessage("Exception with no message or cause message caught");
+        }
+        
+        // Fill in the cause or a default string otherwise so that we always send something in the response.
+        if (null != e.getCause()) {
+            qet.setCause(e.getCause().toString());
+        } else {
+            qet.setCause("Exception with no cause caught");
+        }
+        
+        if (null != errorCode) {
+            qet.setCode(errorCode);
+        }
+        
+        if (this.exceptions == null) {
+            this.exceptions = new LinkedList<>();
+        }
+        this.exceptions.push(qet);
     }
 }

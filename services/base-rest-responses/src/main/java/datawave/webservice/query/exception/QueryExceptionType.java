@@ -3,6 +3,7 @@ package datawave.webservice.query.exception;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Objects;
 
 import javax.xml.bind.annotation.XmlAccessOrder;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -64,6 +65,26 @@ public class QueryExceptionType implements Serializable, Message<QueryExceptionT
     
     public void setCode(String code) {
         this.code = code;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        QueryExceptionType that = (QueryExceptionType) o;
+        return Objects.equals(message, that.message) && Objects.equals(cause, that.cause) && Objects.equals(code, that.code);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(message, cause, code);
+    }
+    
+    @Override
+    public String toString() {
+        return "QueryExceptionType{" + "message='" + message + '\'' + ", cause='" + cause + '\'' + ", code='" + code + '\'' + '}';
     }
     
     public static Schema<QueryExceptionType> getSchema() {

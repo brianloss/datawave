@@ -35,5 +35,6 @@
         <module>../audit-service</module>
         <module>../base-rest-responses</module>
         <module>../data-dictionary-api</module>
+        <module>../data-dictionary-service</module>
     </modules>
 </project>
