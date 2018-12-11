@@ -1,8 +1,15 @@
 package datawave.microservice.http.converter.html;
 
+import datawave.microservice.config.web.DatawaveServerProperties;
 import datawave.webservice.query.exception.QueryExceptionType;
 import datawave.webservice.result.VoidResponse;
+import org.springframework.http.HttpOutputMessage;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.util.Assert;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -10,6 +17,26 @@ import java.util.List;
  * converting to an {@link VoidResponse}.
  */
 public class VoidResponseHttpMessageConverter extends AbstractHtmlProviderHttpMessageConverter<VoidResponse> {
+    
+    public VoidResponseHttpMessageConverter(DatawaveServerProperties datawaveServerProperties) {
+        super(datawaveServerProperties);
+        setSupportedMediaTypes(Arrays.asList(MediaType.TEXT_HTML, MediaType.TEXT_PLAIN));
+    }
+    
+    @Override
+    protected void writeInternal(VoidResponse voidResponse, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
+        MediaType contentType = outputMessage.getHeaders().getContentType();
+        if (contentType == null) {
+            contentType = getDefaultContentType(voidResponse);
+            Assert.state(contentType != null, "No content type");
+        }
+        
+        if (MediaType.TEXT_PLAIN.isCompatibleWith(contentType)) {
+            outputMessage.getBody().write(voidResponse.toString().getBytes());
+        } else {
+            super.writeInternal(voidResponse, outputMessage);
+        }
+    }
     
     @Override
     protected boolean supports(Class<?> clazz) {

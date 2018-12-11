@@ -2,6 +2,8 @@ package datawave.microservice.rest.exception;
 
 import datawave.webservice.query.exception.QueryException;
 import datawave.webservice.result.VoidResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,9 +18,11 @@ import org.springframework.web.util.WebUtils;
 @ControllerAdvice
 @ConditionalOnClass(QueryException.class)
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        System.out.println("****** HANDLING EXCEPTION " + ex.getMessage() + " / " + ex.getClass());
+        logger.debug("Handling exception {}", ex.getMessage(), ex);
         if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
             request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
         }

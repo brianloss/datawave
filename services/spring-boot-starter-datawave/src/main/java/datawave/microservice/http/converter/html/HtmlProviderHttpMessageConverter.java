@@ -1,5 +1,6 @@
 package datawave.microservice.http.converter.html;
 
+import datawave.microservice.config.web.DatawaveServerProperties;
 import datawave.webservice.HtmlProvider;
 
 /**
@@ -7,6 +8,10 @@ import datawave.webservice.HtmlProvider;
  * converting to an {@link HtmlProvider}.
  */
 public class HtmlProviderHttpMessageConverter extends AbstractHtmlProviderHttpMessageConverter<HtmlProvider> {
+    
+    public HtmlProviderHttpMessageConverter(DatawaveServerProperties datawaveServerProperties) {
+        super(datawaveServerProperties);
+    }
     
     @Override
     protected boolean supports(Class<?> clazz) {

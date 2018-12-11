@@ -1,5 +1,6 @@
 package datawave.microservice.http.converter.html;
 
+import datawave.microservice.config.web.DatawaveServerProperties;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -12,7 +13,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 abstract public class AbstractHtmlProviderHttpMessageConverter<T> extends AbstractHttpMessageConverter<T> {
-    public AbstractHtmlProviderHttpMessageConverter() {
+    private final DatawaveServerProperties datawaveServerProperties;
+    
+    public AbstractHtmlProviderHttpMessageConverter(DatawaveServerProperties datawaveServerProperties) {
+        this.datawaveServerProperties = datawaveServerProperties;
         setSupportedMediaTypes(Collections.singletonList(MediaType.TEXT_HTML));
     }
     
@@ -41,9 +45,21 @@ abstract public class AbstractHtmlProviderHttpMessageConverter<T> extends Abstra
     
     protected byte[] createHtml(T t) {
         
-        String html = "<html>" + "<head>" + "<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"/>" + "<title>" + "DATAWAVE - " + getTitle(t)
-                        + "</title>" + "<link rel='stylesheet' type='text/css' href='/screen.css' media='screen' />" + getHeadContent(t) + "</head>" + "<body>"
-                        + "<h1>" + getPageHeader(t) + "</h1>" + "<div>" + getMainContent(t) + "</div>" + "<br/>" + "</body></html>\n";
-        return html.getBytes(StandardCharsets.UTF_8);
+        //@formatter:off
+        String builder = "<html>" +
+                "<head>" +
+                    "<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"/>" +
+                    "<title>DATAWAVE - " + getTitle(t) + "</title>" +
+                    "<link rel='stylesheet' type='text/css' href='" + datawaveServerProperties.getCssUri() + "' media='screen' />" +
+                    getHeadContent(t) +
+                "</head>" +
+                "<body>" +
+                    "<h1>" + getPageHeader(t) + "</h1>" +
+                    "<div>" + getMainContent(t) + "</div>" +
+                    "<br/>" +
+                "</body>" +
+                "</html>\n";
+        //@formatter:on
+        return builder.getBytes(StandardCharsets.UTF_8);
     }
 }

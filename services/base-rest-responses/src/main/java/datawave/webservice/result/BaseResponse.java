@@ -125,4 +125,10 @@ public abstract class BaseResponse implements Serializable {
         }
         this.exceptions.push(qet);
     }
+    
+    @Override
+    public String toString() {
+        return "BaseResponse{" + "operationTimeMS=" + operationTimeMS + ", hasResults=" + hasResults + ", messages=" + messages + ", exceptions=" + exceptions
+                        + '}';
+    }
 }

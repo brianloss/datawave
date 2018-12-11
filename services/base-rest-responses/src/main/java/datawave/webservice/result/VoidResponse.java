@@ -28,6 +28,11 @@ public class VoidResponse extends BaseResponse implements Message<VoidResponse> 
         return SCHEMA;
     }
     
+    @Override
+    public String toString() {
+        return "VoidResponse{} " + super.toString();
+    }
+    
     @XmlTransient
     private static final Schema<VoidResponse> SCHEMA = new Schema<VoidResponse>() {
         // schema methods
