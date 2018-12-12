@@ -1,6 +1,10 @@
 package datawave.microservice.config.web;
 
 import io.undertow.Undertow;
+import io.undertow.server.HandlerWrapper;
+import io.undertow.server.HttpHandler;
+import io.undertow.server.HttpServerExchange;
+import io.undertow.servlet.handlers.ServletRequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -14,6 +18,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import org.xnio.Options;
+
+import javax.servlet.ServletRequest;
 
 /**
  * Customizes Undertow for DATAWAVE use. Configures HTTP/2 unless disabled by the property {@code undertow.enable.http2}. This customizer also manages
@@ -61,6 +67,20 @@ public class UndertowCustomizer implements WebServerFactoryCustomizer<Configurab
                     c.addHttpListener(datawaveServerProperties.getNonSecurePort(), host);
                 }
             }
+        });
+
+        factory.addDeploymentInfoCustomizers(deploymentInfo -> {
+            deploymentInfo.addInnerHandlerChainWrapper(httpHandler ->
+                httpServerExchange -> {
+                    ServletRequestContext ctx = httpServerExchange.getAttachment(ServletRequestContext.ATTACHMENT_KEY);
+                    if (ctx != null) {
+                        ServletRequest servletRequest = ctx.getServletRequest();
+                        if (servletRequest != null) {
+                            servletRequest.setAttribute("X-OperationStartTimeInMS", System.currentTimeMillis());
+                        }
+                    }
+                    httpHandler.handleRequest(httpServerExchange);
+                });
         });
         // @formatter:on
     }
