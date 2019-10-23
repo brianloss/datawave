@@ -103,11 +103,11 @@ public abstract class AbstractTableConfigHelper implements TableConfigHelper {
         TreeMap<String,String> props = new TreeMap<>();
         
         for (IteratorScope iterScope : IteratorScope.values()) {
-            props.put(Property.TABLE_ITERATOR_PREFIX + iterScope.name() + ".vers", "20,VersioningIterator");
+            props.put(Property.TABLE_ITERATOR_PREFIX + iterScope.name() + ".vers", "20,org.apache.accumulo.core.iterators.user.VersioningIterator");
             props.put(Property.TABLE_ITERATOR_PREFIX + iterScope.name() + ".vers.opt.maxVersions", "1");
         }
         
-        props.put(Property.TABLE_CONSTRAINT_PREFIX.toString() + "1", "DefaultKeySizeConstraint");
+        props.put(Property.TABLE_CONSTRAINT_PREFIX.toString() + "1", "org.apache.accumulo.core.constraints.DefaultKeySizeConstraint");
         
         return props;
     }
