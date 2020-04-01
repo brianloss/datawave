@@ -56,8 +56,8 @@ jobs:
           ${{ runner.os }}-maven-build-
           ${{ runner.os }}-maven-format-
           ${{ runner.os }}-maven-
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v2
+    # - name: Setup tmate session
+    #   uses: mxschmitt/action-tmate@v2
     - name: Build and Run Unit Tests
       run: |
         RUN_TESTS="mvn -V -B -e -Pdev,examples,assemble -Ddist -T1C clean verify"
@@ -94,8 +94,8 @@ jobs:
           ${{ runner.os }}-maven-build-
           ${{ runner.os }}-maven-format-
           ${{ runner.os }}-maven-
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v2
+    # - name: Setup tmate session
+    #   uses: mxschmitt/action-tmate@v2
     # Builds the quickstart docker image and run the query tests
     - name: Quickstart Query Tests
       env:
