@@ -1074,7 +1074,9 @@
                 <enabled>false</enabled>
             </snapshots>
             <id>github</id>
+            <?SORTPOM IGNORE?>
             <url>https://public:&#103;hp_CPfo3X6opgdl9lCLeaQrVe29fCeOzM2zz7jR@maven.pkg.github.com/brianloss/datawave</url>
+            <?SORTPOM RESUME?>
         </repository>
         <repository>
             <snapshots>
