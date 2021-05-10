@@ -113,6 +113,10 @@ public class EventMapper<K1,V1 extends RawRecordContainer,K2,V2> extends StatsDE
     
     protected boolean createRawFileName = true;
     
+    protected boolean createLoadDate = true;
+    
+    public static final String SET_LOAD_DATE = "ingest.event.mapper.set.load.date";
+    
     public static final String LOAD_DATE_FIELDNAME = "LOAD_DATE";
     
     public static final String SEQUENCE_FILE_FIELDNAME = "ORIG_FILE";
@@ -192,6 +196,8 @@ public class EventMapper<K1,V1 extends RawRecordContainer,K2,V2> extends StatsDE
         trimSequenceFileName = context.getConfiguration().getBoolean(TRIM_SEQUENCE_FILE_NAME, true);
         
         createRawFileName = context.getConfiguration().getBoolean(LOAD_RAW_FILE_NAME, true);
+        
+        createLoadDate = context.getConfiguration().getBoolean(SET_LOAD_DATE, true);
         
         Class<? extends KeyValueFilter<K2,V2>> firstFilter = null;
         
@@ -762,12 +768,14 @@ public class EventMapper<K1,V1 extends RawRecordContainer,K2,V2> extends StatsDE
             }
         }
         
-        // Create a LOAD_DATE parameter, which is the current time in milliseconds, for all datatypes
-        long loadDate = now.get();
-        NormalizedFieldAndValue loadDateValue = new NormalizedFieldAndValue(LOAD_DATE_FIELDNAME, Long.toString(loadDate));
-        // set an indexed field value for use by the date index data type handler
-        loadDateValue.setIndexedFieldValue(dateNormalizer.normalizeDelegateType(new Date(loadDate)));
-        newFields.put(LOAD_DATE_FIELDNAME, loadDateValue);
+        if (createLoadDate) {
+            // Create a LOAD_DATE parameter, which is the current time in milliseconds, for all datatypes
+            long loadDate = now.get();
+            NormalizedFieldAndValue loadDateValue = new NormalizedFieldAndValue(LOAD_DATE_FIELDNAME, Long.toString(loadDate));
+            // set an indexed field value for use by the date index data type handler
+            loadDateValue.setIndexedFieldValue(dateNormalizer.normalizeDelegateType(new Date(loadDate)));
+            newFields.put(LOAD_DATE_FIELDNAME, loadDateValue);
+        }
         
         String seqFileName = null;
         

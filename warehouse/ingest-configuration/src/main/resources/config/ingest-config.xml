@@ -86,4 +86,19 @@
   <name>partitioner.default.delegate</name>
   <value>datawave.ingest.mapreduce.partition.MultiTableRRRangePartitioner</value>
 </property>
+
+<property>
+  <name>ingest.event.mapper.load.seq.filename</name>
+  <value>${LOAD_SEQUENCE_FILENAME}</value>
+</property>
+
+<property>
+  <name>ingest.event.mapper.load.raw.filename</name>
+  <value>${LOAD_RAW_FILENAME}</value>
+</property>
+
+<property>
+  <name>ingest.event.mapper.set.load.date</name>
+  <value>${SET_LOAD_DATE}</value>
+</property>
 </configuration>
