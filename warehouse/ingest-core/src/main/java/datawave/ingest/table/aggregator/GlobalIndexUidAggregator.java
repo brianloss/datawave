@@ -181,14 +181,10 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
                     // It's possible due to previous compactions that we have a positive count as well as UIDs in the removed list.
                     // Add UIDs that aren't already in the UIDs list (e.g, the UID was added back and we saw it in an earlier
                     // key (which is a newer key with a larger timestamp value).
-                    if (!seenIgnore) {
-                        if (!processInTimestampOrder) {
-                            uidsToRemove.addAll(v.getREMOVEDUIDList());
-                        } else {
-                            for (String uid : v.getREMOVEDUIDList()) {
-                                if (!uids.contains(uid)) {
-                                    uidsToRemove.add(uid);
-                                }
+                    if (!seenIgnore && processInTimestampOrder) {
+                        for (String uid : v.getREMOVEDUIDList()) {
+                            if (!uids.contains(uid)) {
+                                uidsToRemove.add(uid);
                             }
                         }
                     }
