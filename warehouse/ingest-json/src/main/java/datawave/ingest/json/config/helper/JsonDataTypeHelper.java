@@ -27,6 +27,8 @@ public class JsonDataTypeHelper extends CSVHelper {
         String LATITUDE_FIELD_NAME = ".data.category.latitude.field.name";
         String LONGITUDE_FIELD_NAME = ".data.category.longitude.field.name";
         String POINT_FIELD_NAME = ".data.category.point.field.name";
+        
+        String SET_KEY_TIMESTAMP = ".data.json.set.key.timestamp";
     }
     
     protected String columnVisibilityField = null;
@@ -36,6 +38,7 @@ public class JsonDataTypeHelper extends CSVHelper {
     protected String longitudeFieldName = null;
     protected String pointFieldName = null;
     protected FlattenMode jsonObjectFlattenMode = FlattenMode.NORMAL;
+    protected boolean setKeyTimestamp = false;
     
     @Override
     public void setup(Configuration config) throws IllegalArgumentException {
@@ -47,6 +50,7 @@ public class JsonDataTypeHelper extends CSVHelper {
         this.latitudeFieldName = config.get(this.getType().typeName() + Properties.LATITUDE_FIELD_NAME);
         this.longitudeFieldName = config.get(this.getType().typeName() + Properties.LONGITUDE_FIELD_NAME);
         this.pointFieldName = config.get(this.getType().typeName() + Properties.POINT_FIELD_NAME);
+        this.setKeyTimestamp = config.getBoolean(this.getType().typeName() + Properties.SET_KEY_TIMESTAMP, false);
     }
     
     public String getColumnVisibilityField() {
@@ -83,6 +87,10 @@ public class JsonDataTypeHelper extends CSVHelper {
     
     public void setJsonObjectFlattenMode(FlattenMode mode) {
         this.jsonObjectFlattenMode = mode;
+    }
+    
+    public boolean getSetKeyTimestamp() {
+        return setKeyTimestamp;
     }
     
     public JsonObjectFlattener newFlattener() {

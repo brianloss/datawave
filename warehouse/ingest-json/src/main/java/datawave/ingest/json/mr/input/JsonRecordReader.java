@@ -291,8 +291,11 @@ public class JsonRecordReader extends AbstractEventRecordReader<BytesWritable> {
         
         event.setRawData(currentJsonObj.toString().getBytes());
         
+        long now = System.currentTimeMillis();
         if (0 == event.getDate()) {
-            event.setDate(System.currentTimeMillis());
+            event.setDate(now);
+        } else if (jsonHelper.getSetKeyTimestamp()) {
+            event.setKeyTimestamp(now);
         }
         
         UID newUID = uidOverride(event);
