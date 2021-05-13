@@ -157,9 +157,13 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
                     log.debug("SeenIgnore is true. Skipping collections");
                 }
                 
-                // if delta > 0, we are collecting the uid list
-                // in the protobuf into our object's uid list.
-                if (delta > 0) {
+                // if delta >= 0, we are collecting the uid list in the protobuf into our object's uid list.
+                //
+                // Note that it is possible to have a delta of 0 if we were to have gone through
+                // a non-full major compaction and combined a protocol buffer having a positive
+                // count of 1 and a negative count of 1 (leaving one UID in the UID list and one
+                // UID in the REMOVEDUID list.
+                if (delta >= 0) {
                     
                     for (String uid : v.getQUARANTINEUIDList()) {
                         
@@ -177,11 +181,11 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
                                 uids.add(uid);
                         }
                     }
-                    
-                    // It's possible due to previous compactions that we have a positive count as well as UIDs in the removed list.
-                    // Add UIDs that aren't already in the UIDs list (e.g, the UID was added back and we saw it in an earlier
-                    // key (which is a newer key with a larger timestamp value).
-                    if (!seenIgnore && processInTimestampOrder) {
+
+                    // A non-full major compaction could lead to a protocol buffer that has a positive count as well as
+                    // UIDs in the REMOVEDUID list. If we're encountering such a key here, then we need to be sure to
+                    // add those removed UIDs back in to the uidsToRemove list and not just drop them.
+                    if (propogate && processInTimestampOrder) {
                         for (String uid : v.getREMOVEDUIDList()) {
                             if (!uids.contains(uid)) {
                                 uidsToRemove.add(uid);
@@ -192,19 +196,17 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
                     log.debug("Adding uids {} {}", delta, count);
                     
                     // if our delta is < 0, then we can remove, iff seenIgnore is false. If it is true, there is no need to proceed with removals
-                } else if (delta < 0 && !seenIgnore) {
+                } else if (!seenIgnore) {
                     
                     // so that we can perform the decrement
                     for (String uid : v.getREMOVEDUIDList()) {
                         
-                        // If we're processing in timestamp order and UIDs contains the removed UID, that means
-                        // a newer key (larger timestamp value) added the UID back in and we don't want to remove
-                        // it here. If we're not processing in timestamp order, then we always want to mark the UID
-                        // as removed and remove it from the UIDs list.
-                        if (!processInTimestampOrder || !uids.contains(uid)) {
+                        // Don't remove the UID if it's in the uids list, since that means a newer key
+                        // (larger timestamp value) added the UID and we don't want to undo that add.
+                        if (!processInTimestampOrder || !uids.contains(uid))
                             uidsToRemove.add(uid);
+                        if (!processInTimestampOrder)
                             uids.remove(uid);
-                        }
                     }
                     
                     quarantinedIds.addAll(v.getQUARANTINEUIDList());
