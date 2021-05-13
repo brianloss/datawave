@@ -181,7 +181,7 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
                                 uids.add(uid);
                         }
                     }
-
+                    
                     // A non-full major compaction could lead to a protocol buffer that has a positive count as well as
                     // UIDs in the REMOVEDUID list. If we're encountering such a key here, then we need to be sure to
                     // add those removed UIDs back in to the uidsToRemove list and not just drop them.
