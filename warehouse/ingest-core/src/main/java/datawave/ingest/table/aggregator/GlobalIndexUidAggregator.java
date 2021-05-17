@@ -254,9 +254,10 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
     public boolean propogateKey() {
         
         /*
-         * Changed logic so that if seenIgnore is true and count > MAX, we keep propagate the key
+         * Changed logic so that if seenIgnore is true and count > MAX, we keep propagate the key. If the propogate flag is true, then we always want to
+         * propagate the key regardless of the count in the protocol buffer.
          */
-        if ((seenIgnore && count > maxUids) || !quarantinedIds.isEmpty())
+        if (propogate || (seenIgnore && count > maxUids) || !quarantinedIds.isEmpty())
             return true;
         
         HashSet<String> uidsCopy = new HashSet<>(uids);
