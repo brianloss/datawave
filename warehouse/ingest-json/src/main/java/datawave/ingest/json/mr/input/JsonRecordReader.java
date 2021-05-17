@@ -81,6 +81,7 @@ public class JsonRecordReader extends AbstractEventRecordReader<BytesWritable> {
     protected boolean parseHeaderOnly = true;
     protected JsonDataTypeHelper jsonHelper = null;
     protected JsonObjectFlattener jsonFlattener = null;
+    protected long fileModificationTime = 0L;
     
     @Override
     public void close() throws IOException {
@@ -150,6 +151,8 @@ public class JsonRecordReader extends AbstractEventRecordReader<BytesWritable> {
         if (logger.isInfoEnabled()) {
             logger.info("Json flattener mode: " + jsonFlattener.getFlattenMode().name());
         }
+        
+        fileModificationTime = file.getFileSystem(context.getConfiguration()).getFileStatus(file).getModificationTime();
     }
     
     protected void setupReader(InputStream is) {
@@ -291,8 +294,13 @@ public class JsonRecordReader extends AbstractEventRecordReader<BytesWritable> {
         
         event.setRawData(currentJsonObj.toString().getBytes());
         
+        long now = System.currentTimeMillis();
         if (0 == event.getDate()) {
-            event.setDate(System.currentTimeMillis());
+            event.setDate(now);
+        } else if (jsonHelper.getSetKeyTimestampToFileTime() && fileModificationTime > 0) {
+            event.setKeyTimestamp(fileModificationTime);
+        } else if (jsonHelper.getSetKeyTimestamp()) {
+            event.setKeyTimestamp(now);
         }
         
         UID newUID = uidOverride(event);

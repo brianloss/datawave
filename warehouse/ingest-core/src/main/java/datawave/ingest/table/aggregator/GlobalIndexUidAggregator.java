@@ -24,28 +24,29 @@ import org.slf4j.LoggerFactory;
 public class GlobalIndexUidAggregator extends PropogatingCombiner {
     private static final Logger log = LoggerFactory.getLogger(GlobalIndexUidAggregator.class);
     private static final String MAX_UIDS_OPT = "maxuids";
+    private static final String PROCESS_IN_TIMESTAMP_ORDER = "processInTimestampOrder";
     private Uid.List.Builder builder = Uid.List.newBuilder();
     
     /**
      * Using a set instead of a list so that duplicate UIDs are filtered out of the list. This might happen in the case of rows with masked fields that share a
      * UID.
      */
-    private HashSet<String> uids = new HashSet<>();
+    private final HashSet<String> uids = new HashSet<>();
     
     /**
      * List of UIDs to remove.
      */
-    private HashSet<String> uidsToRemove = new HashSet<>();
+    private final HashSet<String> uidsToRemove = new HashSet<>();
     
     /**
      * List of UIDs to remove.
      */
-    private HashSet<String> quarantinedIds = new HashSet<>();
+    private final HashSet<String> quarantinedIds = new HashSet<>();
     
     /**
      * List of UIDs to remove.
      */
-    private HashSet<String> releasedUids = new HashSet<>();
+    private final HashSet<String> releasedUids = new HashSet<>();
     
     /**
      * flag for whether or not we have seen ignore
@@ -60,17 +61,14 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
     /**
      * Maximum number of UIDs.
      */
-    public int maxUids = MAX;
+    public int maxUids;
+    
+    private boolean processInTimestampOrder = false;
     
     /**
      * representative count.
      */
     private long count = 0;
-    
-    /**
-     * temporary set for removals.
-     */
-    protected HashSet<String> tempSet;
     
     public GlobalIndexUidAggregator(int max) {
         this.maxUids = max;
@@ -90,7 +88,7 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
             builder.setIGNORE(true);
             builder.clearUID();
             // if we catch seenIgnore, then there is
-            // no need to propogate removals.
+            // no need to propagate removals.
             propogate = false;
         } else {
             builder.setIGNORE(false);
@@ -110,7 +108,7 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
             builder.addAllUID(uids);
         }
         
-        log.debug("Propogating: {}", propogate);
+        log.debug("Propagating: {}", propogate);
         
         // clear all removals
         builder.clearREMOVEDUID();
@@ -129,9 +127,9 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
      * We should closely examine the possible use cases to ensure that we have covered all scenarios.
      * 
      * Ingest: If we ingest, we would like to aggregate index entries with the same Key. This means that the reducer ( or combiner ) will combine UIDs for a
-     * given index ( on a given shard ). In this case it is unlikey that we have any removals.
+     * given index ( on a given shard ). In this case it is unlikely that we have any removals.
      * 
-     * Deletes: We may have have removals at any point in the RFile read for a given tablet. We need to propogate the removals across compactions, until we have
+     * Deletes: We may have have removals at any point in the RFile read for a given tablet. We need to propagate the removals across compactions, until we have
      * a full major compaction.
      * 
      * If we reach the point where we are merging a UID protobuf, where ignore has been seen, then we do not continue with removals.
@@ -151,7 +149,7 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
                 long delta = v.getCOUNT();
                 
                 count += delta;
-                /**
+                /*
                  * Fail fast approach.
                  */
                 if (v.getIGNORE()) {
@@ -159,9 +157,13 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
                     log.debug("SeenIgnore is true. Skipping collections");
                 }
                 
-                // if delta > 0, we are collecting the uid list
-                // in the protobuf into our object's uid list.
-                if (delta > 0) {
+                // if delta >= 0, we are collecting the uid list in the protobuf into our object's uid list.
+                //
+                // Note that it is possible to have a delta of 0 if we were to have gone through
+                // a non-full major compaction and combined a protocol buffer having a positive
+                // count of 1 and a negative count of 1 (leaving one UID in the UID list and one
+                // UID in the REMOVEDUID list.
+                if (delta >= 0) {
                     
                     for (String uid : v.getQUARANTINEUIDList()) {
                         
@@ -170,7 +172,6 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
                     }
                     
                     for (String uid : v.getUIDList()) {
-                        
                         // check that a removal has not occurred
                         // if it has, we decrement the count, from above.
                         if (!uidsToRemove.contains(uid) && !quarantinedIds.contains(uid)) {
@@ -178,41 +179,47 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
                             // add the UID iff we are under our MAX
                             if (uids.size() < maxUids)
                                 uids.add(uid);
-                            
                         }
-                        
+                    }
+                    
+                    // A non-full major compaction could lead to a protocol buffer that has a positive count as well as
+                    // UIDs in the REMOVEDUID list. If we're encountering such a key here, then we need to be sure to
+                    // add those removed UIDs back in to the uidsToRemove list and not just drop them.
+                    if (propogate && processInTimestampOrder) {
+                        for (String uid : v.getREMOVEDUIDList()) {
+                            if (!uids.contains(uid)) {
+                                uidsToRemove.add(uid);
+                            }
+                        }
                     }
                     
                     log.debug("Adding uids {} {}", delta, count);
                     
                     // if our delta is < 0, then we can remove, iff seenIgnore is false. If it is true, there is no need to proceed with removals
-                } else if (delta < 0 && !seenIgnore) {
+                } else if (!seenIgnore) {
                     
                     // so that we can perform the decrement
                     for (String uid : v.getREMOVEDUIDList()) {
                         
-                        uidsToRemove.add(uid);
-                        
-                        if (uids.contains(uid)) {
-                            
+                        // Don't remove the UID if it's in the uids list, since that means a newer key
+                        // (larger timestamp value) added the UID and we don't want to undo that add.
+                        if (!processInTimestampOrder || !uids.contains(uid))
+                            uidsToRemove.add(uid);
+                        if (!processInTimestampOrder)
                             uids.remove(uid);
-                        }
-                        
                     }
                     
                     quarantinedIds.addAll(v.getQUARANTINEUIDList());
                     
-                    /**
-                     * This is added for backwards compatability. The removal list was added to ensure that removals are propogated across compactions. In the
+                    /*
+                     * This is added for backwards compatibility. The removal list was added to ensure that removals are propagated across compactions. In the
                      * case where compactions did not occur, and the indices are converted into the newer protobuff, we must use the UID list to maintain
                      * removals for deltas less than 0
                      */
                     for (String uid : v.getUIDList()) {
                         // add to uidsToRemove, and decrement count if the uid is in UIDS
                         uidsToRemove.add(uid);
-                        if (uids.contains(uid)) {
-                            uids.remove(uid);
-                        }
+                        uids.remove(uid);
                     }
                 }
                 
@@ -246,8 +253,8 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
     @Override
     public boolean propogateKey() {
         
-        /**
-         * Changed logic so that if seenIgnore is true and count > MAX, we keep propogate the key
+        /*
+         * Changed logic so that if seenIgnore is true and count > MAX, we keep propagate the key
          */
         if ((seenIgnore && count > maxUids) || !quarantinedIds.isEmpty())
             return true;
@@ -260,16 +267,14 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
         }
         
         // if <= 0 and uids is empty, we can safely remove
-        if (count <= 0 && uidsCopy.isEmpty())
-            return false;
-        else
-            return true;
+        return count > 0 || !uidsCopy.isEmpty();
     }
     
     @Override
     public IteratorOptions describeOptions() {
         IteratorOptions io = super.describeOptions();
         io.addNamedOption(MAX_UIDS_OPT, "The maximum number of UIDs to keep in the list. Default is " + MAX + ".");
+        io.addNamedOption(PROCESS_IN_TIMESTAMP_ORDER, "Process in timestamp order (insert UID after remove UID will keep the UID). Default is false.");
         return io;
     }
     
@@ -282,6 +287,9 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
                 if (maxUids <= 0) {
                     throw new IllegalArgumentException("Max UIDs must be greater than 0.");
                 }
+            }
+            if (options.containsKey(PROCESS_IN_TIMESTAMP_ORDER)) {
+                processInTimestampOrder = Boolean.parseBoolean(options.get(PROCESS_IN_TIMESTAMP_ORDER));
             }
         }
         return valid;
@@ -305,5 +313,9 @@ public class GlobalIndexUidAggregator extends PropogatingCombiner {
     
     public static void setMaxUidsOpt(IteratorSetting is, int maxUids) {
         is.addOption(MAX_UIDS_OPT, Integer.toString(maxUids));
+    }
+    
+    public static void setProcessInTimestampOrderOpt(IteratorSetting is, boolean processInTimestampOrder) {
+        is.addOption(PROCESS_IN_TIMESTAMP_ORDER, Boolean.toString(processInTimestampOrder));
     }
 }

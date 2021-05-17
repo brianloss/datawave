@@ -62,6 +62,8 @@ public class RawRecordContainerImpl implements Writable, Configurable, RawRecord
     private Multimap<Type,IgnorableErrorHelperInterface> ignorableErrorHelpers = HashMultimap.create();
     
     private long eventDate = 0;
+    private boolean keyTimestampSet = false;
+    private long keyTimestamp = 0;
     private Type dataType = null;
     private UID uid = null;
     private UIDBuilder<UID> uidBuilder;
@@ -185,6 +187,17 @@ public class RawRecordContainerImpl implements Writable, Configurable, RawRecord
     @Override
     public void setDate(long date) {
         this.eventDate = date;
+    }
+    
+    @Override
+    public long getKeyTimestamp() {
+        return keyTimestampSet ? keyTimestamp : eventDate;
+    }
+    
+    @Override
+    public void setKeyTimestamp(long keyTimestamp) {
+        this.keyTimestamp = keyTimestamp;
+        this.keyTimestampSet = true;
     }
     
     @Override

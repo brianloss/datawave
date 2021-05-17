@@ -153,6 +153,7 @@ public class ContentIndexingColumnBasedHandlerTest {
             EasyMock.expect(event.getVisibility()).andReturn(colVis).anyTimes();
             EasyMock.expect(event.getDataType()).andReturn(TypeRegistry.getType(TEST_TYPE)).anyTimes();
             EasyMock.expect(event.getId()).andReturn(uid).anyTimes();
+            EasyMock.expect(event.getKeyTimestamp()).andReturn(CURRENT_TIME).anyTimes();
             EasyMock.expect(event.getDate()).andReturn(CURRENT_TIME).anyTimes();
             EasyMock.replay(event);
         } catch (Exception e) {

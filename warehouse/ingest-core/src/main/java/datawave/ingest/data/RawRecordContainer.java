@@ -62,6 +62,18 @@ public interface RawRecordContainer {
      */
     void setDate(long date);
     
+    /**
+     * Gets the timestamp value for Accumulo keys created from this record. This defaults to the result of {@link #getDate()}, but can be overridden if a
+     * different behavior is desired (e.g., use the load time instead).
+     */
+    default long getKeyTimestamp() {
+        return getDate();
+    }
+    
+    default void setKeyTimestamp(long date) {
+        // ignored by default
+    }
+    
     Collection<String> getErrors();
     
     void setErrors(Collection<String> errors);
